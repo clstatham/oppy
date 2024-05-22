@@ -43,12 +43,13 @@ impl<T> IrqMutex<T> {
 impl<T: ?Sized> IrqMutex<T> {
     /// Returns a reference to the data.
     /// This cannot deadlock because it does not lock the mutex, instead requiring a mutable reference to the mutex.
+    #[inline]
     pub fn get_mut(&mut self) -> &mut T {
         self.inner.get_mut()
     }
 
     /// Attempts to lock the mutex.
-    /// Returns `None` if the mutex is already locked.
+    /// Returns [`None`] if the mutex is already locked.
     pub fn try_lock(&self) -> Option<IrqMutexGuard<'_, T>> {
         if self.inner.is_locked() {
             return None;
@@ -59,10 +60,13 @@ impl<T: ?Sized> IrqMutex<T> {
 
     /// Locks the mutex.
     /// This will disable interrupts until the guard is dropped.
-    /// Panics if it would deadlock.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the mutex is already locked.
     pub fn lock(&self) -> IrqMutexGuard<'_, T> {
         if self.inner.is_locked() {
-            panic!("deadlock");
+            panic!("IrqMutex deadlock");
         }
 
         let saved_status = SavedInterruptStatus::save();
@@ -77,6 +81,7 @@ impl<T: ?Sized> IrqMutex<T> {
     }
 
     /// Returns whether the mutex is locked.
+    #[inline]
     pub fn is_locked(&self) -> bool {
         self.inner.is_locked()
     }
@@ -86,6 +91,7 @@ impl<T: ?Sized> IrqMutex<T> {
     /// # Safety
     ///
     /// See [`SpinMutex::force_unlock`].
+    #[inline]
     pub unsafe fn force_unlock(&self) {
         self.inner.force_unlock();
     }
