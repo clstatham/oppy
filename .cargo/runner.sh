@@ -2,13 +2,12 @@
 #
 # This script will be executed by `cargo run`.
 
-# set -xe
+set -xe
 
 LIMINE_GIT_URL="https://github.com/limine-bootloader/limine.git"
 
 # Cargo passes the path to the built executable as the first argument.
 KERNEL=$1
-
 
 # Clone the `limine` repository if we don't have it yet.
 if [ ! -d target/limine ]; then
@@ -37,7 +36,6 @@ xorriso -as mkisofs                                             \
 target/limine/limine-deploy $KERNEL.iso
 
 # Run the created image with QEMU.
-# -machine q35 -cpu EPYC
 echo "Running in debug mode." >&2
 qemu-system-x86_64 \
     -machine q35 -cpu EPYC -M smm=off \

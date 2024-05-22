@@ -59,21 +59,21 @@ pub fn _print2(args: core::fmt::Arguments) {
 #[macro_export]
 macro_rules! serial0_print {
     ($($arg:tt)*) => {
-        $crate::serial::_print0(format_args!($($arg)*));
+        $crate::serial::_print0(format_args!($($arg)*))
     };
 }
 
 #[macro_export]
 macro_rules! serial1_print {
     ($($arg:tt)*) => {
-        $crate::serial::_print1(format_args!($($arg)*));
+        $crate::serial::_print1(format_args!($($arg)*))
     };
 }
 
 #[macro_export]
 macro_rules! serial2_print {
     ($($arg:tt)*) => {
-        $crate::serial::_print2(format_args!($($arg)*));
+        $crate::serial::_print2(format_args!($($arg)*))
     };
 }
 
