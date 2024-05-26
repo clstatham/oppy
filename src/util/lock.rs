@@ -93,7 +93,7 @@ impl<T: ?Sized> IrqMutex<T> {
     /// See [`SpinMutex::force_unlock`].
     #[inline]
     pub unsafe fn force_unlock(&self) {
-        self.inner.force_unlock();
+        unsafe { self.inner.force_unlock() };
     }
 }
 

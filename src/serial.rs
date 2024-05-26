@@ -1,8 +1,7 @@
 use lazy_static::lazy_static;
 use uart_16550::SerialPort;
-use x86_64::instructions::interrupts;
 
-use crate::util::lock::IrqMutex;
+use crate::{arch::without_interrupts, util::lock::IrqMutex};
 
 pub const SERIAL0_IOPORT: u16 = 0x3f8;
 pub const SERIAL1_IOPORT: u16 = 0x2f8;
@@ -33,7 +32,7 @@ lazy_static! {
 pub fn _print0(args: core::fmt::Arguments) {
     use core::fmt::Write;
 
-    interrupts::without_interrupts(|| {
+    without_interrupts(|| {
         SERIAL0.lock().write_fmt(args).unwrap();
     })
 }
@@ -42,7 +41,7 @@ pub fn _print0(args: core::fmt::Arguments) {
 pub fn _print1(args: core::fmt::Arguments) {
     use core::fmt::Write;
 
-    interrupts::without_interrupts(|| {
+    without_interrupts(|| {
         SERIAL1.lock().write_fmt(args).unwrap();
     })
 }
@@ -51,7 +50,7 @@ pub fn _print1(args: core::fmt::Arguments) {
 pub fn _print2(args: core::fmt::Arguments) {
     use core::fmt::Write;
 
-    interrupts::without_interrupts(|| {
+    without_interrupts(|| {
         SERIAL2.lock().write_fmt(args).unwrap();
     })
 }

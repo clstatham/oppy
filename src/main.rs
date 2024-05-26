@@ -1,10 +1,12 @@
 #![no_std]
 #![no_main]
+#![deny(unsafe_op_in_unsafe_fn)]
 
 use core::panic::PanicInfo;
 
-use x86_64::instructions;
+use crate::arch::{Arch, TargetArch};
 
+pub mod arch;
 #[macro_use]
 pub mod serial;
 pub mod logging;
@@ -12,6 +14,8 @@ pub mod util;
 
 #[no_mangle]
 pub extern "C" fn start() -> ! {
+    TargetArch::init();
+
     logging::init();
 
     log::info!("This is a test info message");
@@ -20,7 +24,7 @@ pub extern "C" fn start() -> ! {
     log::debug!("This is a test debug message");
     log::trace!("This is a test trace message");
 
-    hcf();
+    TargetArch::hcf();
 }
 
 #[panic_handler]
@@ -31,12 +35,5 @@ fn panic(info: &PanicInfo) -> ! {
         let _ = serial.write_fmt(format_args!("{}\n", info));
     }
 
-    hcf();
-}
-
-pub fn hcf() -> ! {
-    loop {
-        instructions::hlt();
-        core::hint::spin_loop();
-    }
+    TargetArch::hcf();
 }
