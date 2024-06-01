@@ -10,6 +10,7 @@ pub mod arch;
 #[macro_use]
 pub mod serial;
 pub mod logging;
+pub mod memory;
 pub mod util;
 
 #[no_mangle]
@@ -20,11 +21,7 @@ pub extern "C" fn start() -> ! {
         TargetArch::init();
     }
 
-    log::info!("This is a test info message");
-    log::warn!("This is a test warning message");
-    log::error!("This is a test error message");
-    log::debug!("This is a test debug message");
-    log::trace!("This is a test trace message");
+    log::info!("It did not crash!");
 
     TargetArch::hcf();
 }
