@@ -14,9 +14,11 @@ pub mod util;
 
 #[no_mangle]
 pub extern "C" fn start() -> ! {
-    TargetArch::init();
-
     logging::init();
+
+    unsafe {
+        TargetArch::init();
+    }
 
     log::info!("This is a test info message");
     log::warn!("This is a test warning message");

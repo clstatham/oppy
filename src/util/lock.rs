@@ -1,12 +1,12 @@
 use core::mem::ManuallyDrop;
 
 use spin::mutex::{SpinMutex, SpinMutexGuard};
-use x86::bits64::rflags::{self, RFlags};
-use x86_64::instructions::interrupts;
+
+use crate::arch::Arch;
 
 /// A guard that saves the interrupt flag status when it is created and restores it when it is dropped.
 pub struct SavedInterruptStatus {
-    rflags: RFlags,
+    interrupts_enabled: bool,
 }
 
 impl SavedInterruptStatus {
@@ -14,14 +14,18 @@ impl SavedInterruptStatus {
     /// The returned guard will restore the interrupt flag to the saved status when it is dropped.
     pub fn save() -> SavedInterruptStatus {
         SavedInterruptStatus {
-            rflags: rflags::read(),
+            interrupts_enabled: crate::TargetArch::interrupts_enabled(),
         }
     }
 }
 
 impl Drop for SavedInterruptStatus {
     fn drop(&mut self) {
-        rflags::set(rflags::read() | (self.rflags & rflags::RFlags::FLAGS_IF));
+        if self.interrupts_enabled {
+            crate::TargetArch::enable_interrupts();
+        } else {
+            crate::TargetArch::disable_interrupts();
+        }
     }
 }
 
@@ -70,7 +74,7 @@ impl<T: ?Sized> IrqMutex<T> {
         }
 
         let saved_status = SavedInterruptStatus::save();
-        interrupts::disable();
+        crate::TargetArch::disable_interrupts();
 
         let guard = self.inner.lock();
 

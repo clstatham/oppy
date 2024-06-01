@@ -4,6 +4,7 @@ use x86_64::instructions::{self, interrupts};
 
 use super::Arch;
 
+pub mod core_local;
 pub mod gdt;
 
 static HHDM: HhdmRequest = HhdmRequest::new();
@@ -27,7 +28,7 @@ impl Arch for X86_64 {
     const NAME: &'static str = "x86_64";
     const KERNEL_STACK_SIZE: usize = 0x8000;
 
-    fn init() {
+    unsafe fn init() {
         // immediately ensure interrupts are disabled because we haven't set up an IDT yet
         interrupts::disable();
 
@@ -38,6 +39,13 @@ impl Arch for X86_64 {
 
         // initialize HHDM physical offset static constant
         let _hhdm_physical_offset = hhdm_physical_offset();
+
+        // initialize boot GDT
+        unsafe {
+            gdt::init_boot_gdt();
+        }
+
+        log::info!("Initialized boot GDT");
     }
 
     fn interrupts_enabled() -> bool {
